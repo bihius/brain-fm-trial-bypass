@@ -16,6 +16,7 @@
     const playlist = "focus";
     // choose activity (work, learning, creativity)
     const activity = "work";
+    // TODO dodac aktywnosci dla innych playlist 
     // choose neural level (low, medium, high)
     const effect = "medium";
 
@@ -68,8 +69,8 @@
                 await register();
             }
             else if (trialOnLastDay == false) {
-                sleep(1000 * 60 * 60 * 6);
-                console.log("Script hibernation for 6 hours started");
+                sleep(1000 * 60 * 5);
+                console.log("Script hibernation for 5 minutes started");
             }
             else {
                 console.log("Can't check trial status, exiting");
@@ -85,7 +86,7 @@
 
     async function register() {
         let isPageLoaded = checkIfAllPageElementsLoaded();
-        if (isPageLoaded != true) { setTimeout(register, 100); }
+        if (isPageLoaded != true) { setTimeout(register, DEFAULT_TIMEOUT); }
         let loginStatus = checkLoginStatus();
         if (loginStatus == true) { logout(); }
         var singUpButton = getElementByXpath("//a[@data-testid='sign-up']");
@@ -93,10 +94,10 @@
         // fill register form with random data and click submit button
         fillFormAndRegister();
         // skip all splash screen elements by just clicking them automatically
-        skipSplashScreen();
+        skipSplashScreen(); //TODO przerobic na nowa funkcje xpatha
         console.log("register complete");
-        await setTimeout(choosePlaylist, DEFAULT_TIMEOUT * 10);
-        await setTimeout(selectOtherPresets, DEFAULT_TIMEOUT * 10);
+        setTimeout(choosePlaylist, DEFAULT_TIMEOUT * 15); //TODO przerobic na nowa funkcje Xpatha, a nie ladowanie nowej strony
+        executeAfterXPath("//span[contains(text(), 'Activity')]", selectOtherPresets);
     }
 
     function logout() {
@@ -161,14 +162,6 @@
 
 
     function selectOtherPresets() {
-        if (checkIfAllPageElementsLoaded == true) {
-            if (getElementByXpath("//span[contains(text(), Activity)]") == null || getElementByXpath("//span[contains(text(), Activity)]") == undefined) {
-                setTimeout(selectOtherPresets, DEFAULT_TIMEOUT);
-            }
-            else {
-                setTimeout(selectOtherPresets, DEFAULT_TIMEOUT);
-            }
-        }
         switch (activity) {
             case "learning":
                 getElementByXpath("//div//child::p[contains(text(),'Use this music')]").click();
@@ -180,7 +173,6 @@
                 getElementByXpath("//div//child::p[contains(text(),'Music designed to engage and inspire. ')]").click();
                 break;
             default:
-                getElementByXpath("//div//child::p[contains(text(),'Music designed to facilitate cognitively')]").click();
                 break;
         }
         switch (effect) {
@@ -194,9 +186,9 @@
                 getElementByXpath("//div//child::p[contains(text(),'Try the strongest level of our neural phase locking technology if ')]").click();
                 break;
             default:
-                getElementByXpath("//div//child::p[contains(text(),'Our standard level of neural phase locking is a great place to start. ')]").click();
                 break;
         }
+        console.log("presets choosen");
     }
 
     function choosePlaylist() {
@@ -344,6 +336,21 @@
      */
     function checkIfAllPageElementsLoaded() {
         return document.readyState === 'complete';
+    }
+    function executeAfterXPath(xpath, callback) {
+        const element = document.evaluate(
+            xpath,
+            document,
+            null,
+            XPathResult.FIRST_ORDERED_NODE_TYPE,
+            null
+        ).singleNodeValue;
+
+        if (element) {
+            callback();
+        } else {
+            setTimeout(() => executeAfterXPath(xpath, callback), DEFAULT_TIMEOUT);
+        }
     }
 })();
 
