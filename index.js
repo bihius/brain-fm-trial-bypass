@@ -161,8 +161,7 @@
 
 
     function selectOtherPresets() {
-        let isPageLoaded = checkIfAllPageElementsLoaded();
-        if (isPageLoaded == false) {
+        if (getElementByXpath("//span[contains(text(), Activity)]") == null || getElementByXpath("//span[contains(text(), Activity)]") == undefined) {
             setTimeout(selectOtherPresets, DEFAULT_TIMEOUT);
         }
         switch (activity) {
