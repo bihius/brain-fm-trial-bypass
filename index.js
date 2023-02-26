@@ -1,11 +1,12 @@
 // ==UserScript==
-// @name         Bypass trial on brain.fm final beta Adam's version
+// @name         Bypass trial on brain.fm
 // @namespace    http://tampermonkey.net/
-// @version      0.70
+// @version      0.72
 // @description  Autoregister on brain.fm when trial is ending
 // @author       https://github.com/b3valsek
 // @match        https://my.brain.fm/*
 // @grant        unsafeWindow
+// @updateURL    https://github.com/b3valsek/brain-fm-bypass/blob/main/index.js
 // ==/UserScript==
 (function () {
 
@@ -36,7 +37,7 @@
     async function main() {
 
         if (isPageLoaded == true) {
-            mainInternal();
+            await mainInternal();
         }
         else {
             console.log("Page is not loaded");
@@ -62,8 +63,8 @@
             let trialOnLastDay = checkLastTrialDay(trialStatusLabel);
 
             if (trialOnLastDay == true) {
-                logout();
-                register();
+                await logout();
+                await register();
             }
             else if (trialOnLastDay == false) {
                 sleep(1000 * 60 * 60 * 6);
@@ -93,8 +94,8 @@
         // skip all splash screen elements by just clicking them automatically
         skipSplashScreen();
         console.log("register complete");
-        setTimeout(choosePlaylist, DEFAULT_TIMEOUT * 10);
-        setTimeout(selectOtherPresets, DEFAULT_TIMEOUT * 10);
+        await setTimeout(choosePlaylist, DEFAULT_TIMEOUT * 10);
+        await setTimeout(selectOtherPresets, DEFAULT_TIMEOUT * 10);
     }
 
     function logout() {
