@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bypass trial on brain.fm final beta Adam's version
 // @namespace    http://tampermonkey.net/
-// @version      0.69
+// @version      0.70
 // @description  Autoregister on brain.fm when trial is ending
 // @author       https://github.com/b3valsek
 // @match        https://my.brain.fm/*
@@ -93,15 +93,15 @@
         // skip all splash screen elements by just clicking them automatically
         skipSplashScreen();
         console.log("register complete");
-        setTimeout(choosePlaylist, DEFAULT_TIMEOUT * 15);
-        setTimeout(selectOtherPresets, DEFAULT_TIMEOUT * 25);
+        setTimeout(choosePlaylist, DEFAULT_TIMEOUT * 10);
+        setTimeout(selectOtherPresets, DEFAULT_TIMEOUT * 10);
     }
 
     function logout() {
-        if (isPageLoaded != true) { setTimeout(logout, 100); }
+        if (isPageLoaded != true) { setTimeout(logout, DEFAULT_TIMEOUT); }
+        overrideConfirmFunction();
         clickLogoutButton();
         waitForTargetNodeAndClickFirstChild();
-        overrideConfirmFunction();
         console.log("logout complete");
     }
 
@@ -112,7 +112,7 @@
         if (logoutBtn) {
             logoutBtn.click();
         } else {
-            setTimeout(clickLogoutButton, 100);
+            setTimeout(clickLogoutButton, DEFAULT_TIMEOUT);
         }
     }
 
@@ -279,7 +279,7 @@
      * @returns {Boolean}
      */
     function checkLastTrialDay(trialStatusLabel) {
-        if (trialStatusLabel.innerText.includes('Your trial ends in 1 days')) {
+        if (trialStatusLabel.innerText.includes('Your trial ends in 1 day')) {
             return true;
         }
         return false;
