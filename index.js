@@ -161,6 +161,10 @@
 
 
     function selectOtherPresets() {
+        let isPageLoaded = checkIfAllPageElementsLoaded();
+        if (isPageLoaded == false) {
+            setTimeout(selectOtherPresets, DEFAULT_TIMEOUT);
+        }
         switch (activity) {
             case "learning":
                 getElementByXpath("//div//child::p[contains(text(),'Use this music')]").click();
