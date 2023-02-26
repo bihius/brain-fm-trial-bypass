@@ -6,7 +6,8 @@
 // @author       https://github.com/b3valsek
 // @match        https://my.brain.fm/*
 // @grant        unsafeWindow
-// @updateURL    https://github.com/b3valsek/brain-fm-bypass/blob/main/index.js
+// @updateURL    https://raw.githubusercontent.com/b3valsek/brain-fm-bypass/test/index.js
+// @downloadURL  https://raw.githubusercontent.com/b3valsek/brain-fm-bypass/test/index.js
 // ==/UserScript==
 (function () {
 
