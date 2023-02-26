@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bypass trial on brain.fm
 // @namespace    http://tampermonkey.net/
-// @version      0.72
+// @version      0.73
 // @description  Autoregister on brain.fm when trial is ending
 // @author       https://github.com/b3valsek
 // @match        https://my.brain.fm/*
