@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bypass trial on brain.fm
 // @namespace    http://tampermonkey.net/
-// @version      0.73
+// @version      0.74
 // @description  Autoregister on brain.fm when trial is ending
 // @author       https://github.com/b3valsek
 // @match        https://my.brain.fm/*
@@ -161,8 +161,13 @@
 
 
     function selectOtherPresets() {
-        if (getElementByXpath("//span[contains(text(), Activity)]") == null || getElementByXpath("//span[contains(text(), Activity)]") == undefined) {
-            setTimeout(selectOtherPresets, DEFAULT_TIMEOUT);
+        if (checkIfAllPageElementsLoaded == true) {
+            if (getElementByXpath("//span[contains(text(), Activity)]") == null || getElementByXpath("//span[contains(text(), Activity)]") == undefined) {
+                setTimeout(selectOtherPresets, DEFAULT_TIMEOUT);
+            }
+            else {
+                setTimeout(selectOtherPresets, DEFAULT_TIMEOUT);
+            }
         }
         switch (activity) {
             case "learning":
