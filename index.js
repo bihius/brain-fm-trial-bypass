@@ -8,6 +8,7 @@
 // @grant        unsafeWindow
 // @updateURL    https://raw.githubusercontent.com/b3valsek/brain-fm-bypass/test/index.js
 // @downloadURL  https://raw.githubusercontent.com/b3valsek/brain-fm-bypass/test/index.js
+// @grant        unsafeWindow
 // ==/UserScript==
 (function () {
     // CONFIG 
@@ -48,95 +49,86 @@
         input_password: "//input[@id='password']",
         submit_button: "//button[contains(text(), 'Create Account')]",
         playlist_select: "//img[@alt='Lady working in focus mode']",
-        //trial_end: "//div[contains(text(), 'Your trial has ended.')]",
-        trial_end: "//div[contains(text(), 'Your trial ends in 3 days')]",
+        trial_end: "//div[contains(text(), 'Your trial has ended.')]",
+        //trial_end: "//div[contains(text(), 'Your trial ends in 3 days')]",
         subscribe: "//button[contains(text(), 'Subscribe')]",
         close_button: "//img[@data-testid='closeButton']",
         quiz2: "//div[@data-testid='onboardingCardCloseButton]'",
     }
 
     'use strict';
-    window.confirm = function () { return true; };
 
-
-    document.addEventListener("DOMContentLoaded", function () {
-        setTimeout(() => {
-            console.log("Bypassing trial on brain.fm");
-            main();
-        }, DEFAULT_TIMEOUT * 15);
-
+    document.addEventListener("DOMContentLoaded", async function () {
+        await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT * 15));
+        window.confirm = function () {
+            return true;
+        };
+        await console.log("Bypassing trial on brain.fm");
+        await main();
     });
-    // Checks if user is logged in, if yes checks if user is on last trial day if yes it log's out and register new account
+
     async function main() {
-        let isLogged = checkLoginStatus();
-        console.log("Is user logged: " + isLogged);
+        let isLogged = await checkLoginStatus();
+        await console.log("Is user logged: " + isLogged);
         if (isLogged == true) {
-            console.log("checking trial status");
-            let trialExpired = checkIfTrialIsExpired();
-            console.log("Is trial expired: " + trialExpired);
+            await console.log("checking trial status");
+            let trialExpired = await checkIfTrialIsExpired();
+            await console.log("Is trial expired: " + trialExpired);
             if (trialExpired == true) {
-                console.log("Logging out");
+                await console.log("Logging out");
                 await logout();
-                await setTimeout(overrideConfirmPopup, DEFAULT_TIMEOUT * 3);
-                console.log("registering new account");
+                await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT * 2));
+                await register();
+            } else if (trialExpired == false) {
+                await console.log("Your trial is active");
+                return;
+            } else {
+                await console.log("Can't check trial status, trying one more time in 60 seconds...");
+                await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT * 2 * 60));
+                await main();
+            }
+        } else if (isLogged == false) {
+            if (getElementByXpath(elements.singUpButton) != null || getElementByXpath(elements.singUpButton) != undefined) {
+                setTimeout(main, DEFAULT_TIMEOUT * 2);
+            } else {
                 await register();
             }
-            else if (trialExpired == false) {
-                console.log("Your trial is active");
-                return;
-            }
-            else {
-                console.log("Can't check trial status, trying one more time in 60 seconds...");
-                setTimeout(main, DEFAULT_TIMEOUT * 2);
-            }
-        }
-        else if (isLogged == false) {
-            await register();
-        }
-        else {
-            console.log("can't check login status, exiting");
+        } else {
+            await console.log("can't check login status, exiting");
         }
     }
 
     async function register() {
         clickOnElement(elements.singUpButton);
-        console.log("Registering new account");
+        await console.log("Registering new account");
         fillFormAndRegister()
-        console.log("Filling complete");
+        await console.log("Filling complete");
         skipSplashScreen();
-        console.log("Splash screen is skipped");
-        console.log("Register complete");
-        executeAfterFoundInXpath(elements.playlist_select, choosePlaylist);
-        executeAfterFoundInXpath(elements.activity, autoConfig);
+        await console.log("Register complete");
+        await executeAfterFoundInXpath(elements.playlist_select, choosePlaylist);
+        await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT * 2 * 12));
+        autoConfig();
     }
     // logs out user
-    function logout() {
+    async function logout() {
+        overrideConfirmFunction();
         clickOnElement(elements.profileIcon);
-        autoConfirm();
         clickOnElement(elements.logoutButton);
-        autoConfirm();
     }
 
     // Automatically click ok on the confirm popup
-    function autoConfirm() {
-        window.confirm = function (message) {
-            const beforeConfirmEvent = new Event('beforeconfirm');
-            document.dispatchEvent(beforeConfirmEvent);
+    async function overrideConfirmFunction() {
+        window.confirm = function () {
             return true;
-        };
-
-        document.addEventListener('beforeconfirm', function () {
-            const confirmButton = document.querySelector('#popup_ok');
-            if (confirmButton) {
-                confirmButton.click();
-            }
-        });
+        }
+        unsafeWindow.confirm = function () {
+            return true;
+        }
     }
 
-
-    function autoConfig() {
-        console.log("Activity selected: " + activity);
-        clickOnElement(elements.activity);
+    async function autoConfig() {
+        await console.log("Activity selected: " + activity);
+        await clickOnElement(elements.activity);
         switch (activity) {
             case "learning":
                 clickOnElement(elements.learning_music);
@@ -150,7 +142,7 @@
             default:
                 break;
         }
-        console.log("Effect selected: " + effect);
+        await console.log("Effect selected: " + effect);
         switch (effect) {
             case "low":
                 clickOnElement(elements.low_effect);
@@ -165,11 +157,11 @@
                 break;
         }
         clickOnElement(elements.close_button);
-        console.log("Auto config complete");
+        await console.log("Auto config complete");
     }
 
-    function choosePlaylist() {
-        console.log("Playlist selected: " + playlist);
+    async function choosePlaylist() {
+        await console.log("Playlist selected: " + playlist);
         switch (playlist) {
             case "relax":
                 clickOnElement(elements.relax_playlist);
@@ -259,16 +251,6 @@
             null
         ).singleNodeValue;
     }
-    // Checks if all page elements are loaded, returns true if yes
-    function waitForPageIsLoaded() {
-        if (document.readyState == 'complete') {
-            console.log("page is loaded");
-            return true;
-        }
-        else {
-            setTimeout(waitForPageIsLoaded, DEFAULT_TIMEOUT * 2);
-        }
-    }
     // Execute function after element is found
     function executeAfterFoundInXpath(xpath, callback) {
         const element = getElementByXpath(xpath);
@@ -276,7 +258,7 @@
         if (element) {
             callback();
         } else {
-            setTimeout(() => executeAfterFoundInXpath(xpath, callback), DEFAULT_TIMEOUT);
+            setTimeout(() => executeAfterFoundInXpath(xpath, callback), DEFAULT_TIMEOUT * 2);
         }
     }
     // Clicks on a element 
