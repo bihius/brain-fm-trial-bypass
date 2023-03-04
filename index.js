@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         Bypass trial on brain.fm
 // @namespace    http://tampermonkey.net/
-// @version      1.00
+// @version      1.01
 // @description  Autoregister on brain.fm when trial is ending
 // @author       https://github.com/b3valsek
 // @match        https://my.brain.fm/*
 // @grant        unsafeWindow
-// @updateURL    https://raw.githubusercontent.com/b3valsek/brain-fm-bypass/test/index.js
-// @downloadURL  https://raw.githubusercontent.com/b3valsek/brain-fm-bypass/test/index.js
+// @updateURL    https://raw.githubusercontent.com/b3valsek/brain-fm-trial-bypass/main/index.js?token=GHSAT0AAAAAAB6ASQXLKSW5GXBPTUIJ5TFOZADWBRQ
+// @downloadURL  https://raw.githubusercontent.com/b3valsek/brain-fm-trial-bypass/main/index.js?token=GHSAT0AAAAAAB6ASQXLKSW5GXBPTUIJ5TFOZADWBRQ
 // ==/UserScript==
 (function () {
     // CONFIG 
