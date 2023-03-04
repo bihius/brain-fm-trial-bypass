@@ -30,7 +30,7 @@
     const DEFAULT_TIMEOUT = 500;
     const elements = {
         profileIcon: "//div[@data-testid='profile-button']",
-        singUpButton: "//a[@data-testid='sign-up']",
+        signUpButton: "//a[@data-testid='sign-up']",
         activity: "//span[contains(text(), 'Activity')]",
         logoutButton: "//a[@data-testid='logout']",
         learning_music: "//div//child::p[contains(text(),'Use this music')]",
@@ -54,6 +54,7 @@
         subscribe: "//button[contains(text(), 'Subscribe')]",
         close_button: "//img[@data-testid='closeButton']",
         quiz2: "//div[@data-testid='onboardingCardCloseButton]'",
+        skip: "//button[@data-testid='skipButton']",
     }
 
     'use strict';
@@ -71,7 +72,6 @@
         let isLogged = await checkLoginStatus();
         await console.log("Is user logged: " + isLogged);
         if (isLogged == true) {
-            await console.log("checking trial status");
             let trialExpired = await checkIfTrialIsExpired();
             await console.log("Is trial expired: " + trialExpired);
             if (trialExpired == true) {
@@ -88,10 +88,10 @@
                 await main();
             }
         } else if (isLogged == false) {
-            if (getElementByXpath(elements.singUpButton) != null || getElementByXpath(elements.singUpButton) != undefined) {
-                setTimeout(main, DEFAULT_TIMEOUT * 2);
-            } else {
+            if (getElementByXpath(elements.input_email) != null || getElementByXpath(elements.input_email) != undefined) {
                 await register();
+            } else {
+                setTimeout(main, DEFAULT_TIMEOUT * 2);
             }
         } else {
             await console.log("can't check login status, exiting");
@@ -99,7 +99,7 @@
     }
 
     async function register() {
-        clickOnElement(elements.singUpButton);
+        clickOnElement(elements.signUpButton);
         await console.log("Registering new account");
         fillFormAndRegister()
         await console.log("Filling complete");
@@ -108,6 +108,7 @@
         await executeAfterFoundInXpath(elements.playlist_select, choosePlaylist);
         await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT * 2 * 12));
         autoConfig();
+        clickOnElement(elements.skip);
     }
     // logs out user
     async function logout() {
