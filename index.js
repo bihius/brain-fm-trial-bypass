@@ -9,12 +9,12 @@
 // @updateURL    https://raw.githubusercontent.com/b3valsek/brain-fm-bypass/test/index.js
 // @downloadURL  https://raw.githubusercontent.com/b3valsek/brain-fm-bypass/test/index.js
 // ==/UserScript==
-(async function () {
+(function () {
     // CONFIG 
     // choose default playlist (relax, focus, sleep)
     const playlist = "focus";
     // choose activity (work, learning, creativity)
-    const activity = "work";
+    const activity = "learning";
     // TODO dodac aktywnosci dla innych playlist 
     // choose neural level (low, medium, high)
     const effect = "medium";
@@ -35,34 +35,39 @@
         learning_music: "//div//child::p[contains(text(),'Use this music')]",
         work_music: "//div//child::p[contains(text(),'Music designed to facilitate cognitively')]",
         creativity_music: "//div//child::p[contains(text(),'Music designed to engage and inspire. ')]",
-        low_effect: "//div//child::p[contains(text(),'Use this effect level if you are generally sensitive to sounds, or if ')]",
-        medium_effect: "//div//child::p[contains(text(),'Our standard level of neural phase locking is a great place to start. ')]",
-        strong_effect: "//div//child::p[contains(text(),'Try the strongest level of our neural phase locking technology if ')]",
+        low_effect: "//div//h6[contains(text(), 'low')]",
+        medium_effect: "//div//h6[contains(text(), 'medium')]",
+        strong_effect: "//div//h6[contains(text(), 'high')]",
         focus_playlist: "//p[contains(text(), Focus)]",
         relax_playlist: "//p[contains(text(), Relax)]",
         sleep_playlist: "//p[contains(text(), Sleep)]",
         next_button: "//button[contains(text(), 'Next')]",
-        quiz: "//button[contains(text(), 'quiz')]",
-        input_name: "//input[@id='Name']",
-        input_email: "//input[@id='Email']",
-        input_password: "//input[@id='Password']",
+        quiz: "//button[contains(text(), 'Take this quiz later')]",
+        input_name: "//input[@id='name']",
+        input_email: "//input[@id='email']",
+        input_password: "//input[@id='password']",
         submit_button: "//button[contains(text(), 'Create Account')]",
         playlist_select: "//img[@alt='Lady working in focus mode']",
-        trial_end: "//div[contains(text(), 'Your trial has ended.')]",
+        //trial_end: "//div[contains(text(), 'Your trial has ended.')]",
+        trial_end: "//div[contains(text(), 'Your trial ends in 3 days')]",
         subscribe: "//button[contains(text(), 'Subscribe')]",
+        close_button: "//img[@data-testid='closeButton']",
+        quiz2: "//div[@data-testid='onboardingCardCloseButton]'",
     }
 
     'use strict';
+    window.confirm = function () { return true; };
+
+
     document.addEventListener("DOMContentLoaded", function () {
         setTimeout(() => {
             console.log("Bypassing trial on brain.fm");
             main();
-        }, DEFAULT_TIMEOUT * 20);
+        }, DEFAULT_TIMEOUT * 15);
 
     });
     // Checks if user is logged in, if yes checks if user is on last trial day if yes it log's out and register new account
     async function main() {
-
         let isLogged = checkLoginStatus();
         console.log("Is user logged: " + isLogged);
         if (isLogged == true) {
@@ -72,6 +77,7 @@
             if (trialExpired == true) {
                 console.log("Logging out");
                 await logout();
+                await setTimeout(overrideConfirmPopup, DEFAULT_TIMEOUT * 3);
                 console.log("registering new account");
                 await register();
             }
@@ -85,7 +91,7 @@
             }
         }
         else if (isLogged == false) {
-            register();
+            await register();
         }
         else {
             console.log("can't check login status, exiting");
@@ -93,101 +99,77 @@
     }
 
     async function register() {
-        return new Promise(resolve => {
-            let isPageLoaded = waitForPageIsLoaded();
-            if (isPageLoaded) {
-                clickOnElement(elements.singUpButton);
-                fillFormAndRegister().then(() => {
-                    skipSplashScreen();
-                    skipQuiz();
-                    console.log("register complete");
-                    executeAfterFoundInXpath(elements.playlist_select, choosePlaylist);
-                    executeAfterFoundInXpath(elements.activity, autoConfig);
-                    resolve();
-                });
-            }
-            else {
-                console.log("Page is not loaded");
-                setTimeout(async () => {
-                    await register();
-                    resolve();
-                }, DEFAULT_TIMEOUT);
-            }
-        });
+        clickOnElement(elements.singUpButton);
+        console.log("Registering new account");
+        fillFormAndRegister()
+        console.log("Filling complete");
+        skipSplashScreen();
+        console.log("Splash screen is skipped");
+        console.log("Register complete");
+        executeAfterFoundInXpath(elements.playlist_select, choosePlaylist);
+        executeAfterFoundInXpath(elements.activity, autoConfig);
     }
-
-
     // logs out user
-    async function logout() {
-        return new Promise(resolve => {
-            let isPageLoaded = waitForPageIsLoaded();
-            if (!isPageLoaded) {
-                setTimeout(async () => {
-                    await logout();
-                    resolve();
-                }, DEFAULT_TIMEOUT);
-            } else {
-                overrideConfirmPopup();
-                clickOnElement(elements.profileIcon);
-                clickOnElement(elements.logoutButton);
-                console.log("logout complete");
-                resolve();
-            }
-        });
+    function logout() {
+        clickOnElement(elements.profileIcon);
+        autoConfirm();
+        clickOnElement(elements.logoutButton);
+        autoConfirm();
     }
 
-    // Overrides confirm popup by closing it
-    function overrideConfirmPopup() {
+    // Automatically click ok on the confirm popup
+    function autoConfirm() {
         window.confirm = function (message) {
-            const beforeConfirmEvent = new Event("beforeconfirm");
+            const beforeConfirmEvent = new Event('beforeconfirm');
             document.dispatchEvent(beforeConfirmEvent);
             return true;
         };
-        document.addEventListener("beforeconfirm", handleConfirm);
+
+        document.addEventListener('beforeconfirm', function () {
+            const confirmButton = document.querySelector('#popup_ok');
+            if (confirmButton) {
+                confirmButton.click();
+            }
+        });
     }
-    // Handles confirm popup
-    function handleConfirm(event) {
-        event.preventDefault();
-        const confirmButton = document.querySelector('#popup_ok');
-        if (confirmButton) {
-            confirmButton.click();
-        }
-    }
+
 
     function autoConfig() {
-        console.log("auto config...");
+        console.log("Activity selected: " + activity);
+        clickOnElement(elements.activity);
         switch (activity) {
             case "learning":
-                getElementByXpath(elements.learning_music).click();
+                clickOnElement(elements.learning_music);
                 break;
             case "work":
-                getElementByXpath(elements.work_music).click();
+                clickOnElement(elements.work_music);
                 break;
             case "creativity":
-                getElementByXpath(elements.creativity_music).click();
+                clickOnElement(elements.creativity_music);
                 break;
             default:
                 break;
         }
+        console.log("Effect selected: " + effect);
         switch (effect) {
             case "low":
-                getElementByXpath(elements.low_effect).click();
+                clickOnElement(elements.low_effect);
                 break;
             case "medium":
-                getElementByXpath(elements.medium_effect).click();
+                clickOnElement(elements.medium_effect);
                 break;
             case "strong":
-                getElementByXpath(elements.strong_effect).click();
+                clickOnElement(elements.strong_effect);
                 break;
             default:
                 break;
         }
-        console.log("config complete");
+        clickOnElement(elements.close_button);
+        console.log("Auto config complete");
     }
 
-
     function choosePlaylist() {
-        console.log("chossing playlist...");
+        console.log("Playlist selected: " + playlist);
         switch (playlist) {
             case "relax":
                 clickOnElement(elements.relax_playlist);
@@ -204,40 +186,35 @@
         }
     }
     // skip all splash screen elements by just clicking them automatically
-    function skipSplashScreen() {
+    async function skipSplashScreen() {
         for (let i = 0; i < 3; i++) {
             clickOnElement(elements.next_button);
         }
-    }
-    // skip quiz
-    function skipQuiz() {
-        const quiz = getElementByXpath(elements.quiz);
-        if (quiz != null || quiz != undefined) {
-            quiz.click();
-        }
-        else {
-            console.log("quiz does not exist")
-        }
+        clickOnElement(elements.quiz);
     }
     // fill register form with random data and click submit button
-    function fillFormAndRegister() {
-        return new Promise(resolve => {
-            setTimeout(() => {
-                Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(getElementByXpath(elements.input_name), getRandomName());
+    async function fillFormAndRegister() {
+        var intervalId = setInterval(function () {
+            var nameInput = getElementByXpath(elements.input_name);
+            var emailInput = getElementByXpath(elements.input_email);
+            var passwordInput = getElementByXpath(elements.input_password);
+
+            if (nameInput && emailInput && passwordInput) {
+                clearInterval(intervalId);
+
+                Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(nameInput, getRandomName());
                 nameInput.dispatchEvent(new Event('input', { bubbles: true }));
 
-                Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(getElementByXpath(elements.input_email), getRandomEmail());
+                Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(emailInput, getRandomEmail());
                 emailInput.dispatchEvent(new Event('input', { bubbles: true }));
 
-                Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(getElementByXpath(elements.input_password), getRandomPassword());
+                Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(passwordInput, getRandomPassword());
                 passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
 
                 var submitButton = getElementByXpath("//button[@type='submit']");
                 submitButton.click();
-
-                resolve();
-            }, DEFAULT_TIMEOUT);
-        });
+            }
+        }, DEFAULT_TIMEOUT);
     }
 
     // Checks if login is successful, returns true if yes
@@ -284,12 +261,12 @@
     }
     // Checks if all page elements are loaded, returns true if yes
     function waitForPageIsLoaded() {
-        if (document.readyState === 'complete') {
+        if (document.readyState == 'complete') {
             console.log("page is loaded");
             return true;
         }
         else {
-            setTimeout(waitForPageIsLoaded, DEFAULT_TIMEOUT);
+            setTimeout(waitForPageIsLoaded, DEFAULT_TIMEOUT * 2);
         }
     }
     // Execute function after element is found
