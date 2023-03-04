@@ -8,7 +8,6 @@
 // @grant        unsafeWindow
 // @updateURL    https://raw.githubusercontent.com/b3valsek/brain-fm-bypass/test/index.js
 // @downloadURL  https://raw.githubusercontent.com/b3valsek/brain-fm-bypass/test/index.js
-// @grant        unsafeWindow
 // ==/UserScript==
 (function () {
     // CONFIG 
