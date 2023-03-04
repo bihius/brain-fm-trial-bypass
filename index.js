@@ -18,13 +18,14 @@
     // TODO dodac aktywnosci dla innych playlist 
     // choose neural level (low, medium, high)
     const effect = "medium";
-
-    const NAMES = ["Adam", "Ewa", "Michał", "Katarzyna", "Paweł", "Anna", "Tomasz", "Magdalena", "Krzysztof", "Monika", "Korbin", "Clovis"];
+    const NAMES = ["Adam", "Ewa", "Michał", "Katarzyna", "Paweł", "Anna", "Tomasz", "Magdalena",
+        "Krzysztof", "Monika", "Korbin", "Clovis"
+    ];
     const CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
     const DOMAINS = [
-        'armyspy.com', 'rhyta.com', 'dayrep.com', 'teleworm.us', 'superrito.com',
-        'einrot.com', 'cuvox.de', 'gustr.com', 'fleckens.hu', 'glockenhofer.com',
-        'jourrapide.com', 'speedpost.net', 'armyspy.net', 'rhyta.net', 'dayrep.net'
+        'armyspy.com', 'rhyta.com', 'dayrep.com', 'teleworm.us', 'superrito.com', 'einrot.com',
+        'cuvox.de', 'gustr.com', 'fleckens.hu', 'glockenhofer.com', 'jourrapide.com', 'speedpost.net',
+        'armyspy.net', 'rhyta.net', 'dayrep.net'
     ];
     const DEFAULT_TIMEOUT = 500;
     const elements = {
@@ -55,7 +56,6 @@
         quiz2: "//div[@data-testid='onboardingCardCloseButton]'",
         skip: "//button[@data-testid='skipButton']",
     }
-
     'use strict';
 
     document.addEventListener("DOMContentLoaded", async function () {
@@ -66,7 +66,6 @@
         await console.log("Bypassing trial on brain.fm");
         await main();
     });
-
     async function main() {
         let isLogged = await checkLoginStatus();
         await console.log("Is user logged: " + isLogged);
@@ -87,7 +86,9 @@
                 await main();
             }
         } else if (isLogged == false) {
-            if (getElementByXpath(elements.input_email) != null || getElementByXpath(elements.input_email) != undefined) {
+            if (getElementByXpath(elements.input_email) != null || getElementByXpath(elements
+                .input_email) !=
+                undefined) {
                 await register();
             } else {
                 setTimeout(main, DEFAULT_TIMEOUT * 2);
@@ -96,7 +97,6 @@
             await console.log("can't check login status, exiting");
         }
     }
-
     async function register() {
         clickOnElement(elements.signUpButton);
         await console.log("Registering new account");
@@ -115,7 +115,6 @@
         clickOnElement(elements.profileIcon);
         clickOnElement(elements.logoutButton);
     }
-
     // Automatically click ok on the confirm popup
     async function overrideConfirmFunction() {
         window.confirm = function () {
@@ -125,7 +124,6 @@
             return true;
         }
     }
-
     async function autoConfig() {
         await console.log("Activity selected: " + activity);
         await clickOnElement(elements.activity);
@@ -159,7 +157,6 @@
         clickOnElement(elements.close_button);
         await console.log("Auto config complete");
     }
-
     async function choosePlaylist() {
         await console.log("Playlist selected: " + playlist);
         switch (playlist) {
@@ -190,40 +187,46 @@
             var nameInput = getElementByXpath(elements.input_name);
             var emailInput = getElementByXpath(elements.input_email);
             var passwordInput = getElementByXpath(elements.input_password);
-
             if (nameInput && emailInput && passwordInput) {
                 clearInterval(intervalId);
-
-                Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(nameInput, getRandomName());
-                nameInput.dispatchEvent(new Event('input', { bubbles: true }));
-
-                Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(emailInput, getRandomEmail());
-                emailInput.dispatchEvent(new Event('input', { bubbles: true }));
-
-                Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(passwordInput, getRandomPassword());
-                passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
-
+                Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")
+                    .set.call(
+                        nameInput, getRandomName());
+                nameInput.dispatchEvent(new Event('input', {
+                    bubbles: true
+                }));
+                Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")
+                    .set.call(
+                        emailInput, getRandomEmail());
+                emailInput.dispatchEvent(new Event('input', {
+                    bubbles: true
+                }));
+                Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")
+                    .set.call(
+                        passwordInput, getRandomPassword());
+                passwordInput.dispatchEvent(new Event('input', {
+                    bubbles: true
+                }));
                 var submitButton = getElementByXpath("//button[@type='submit']");
                 submitButton.click();
             }
         }, DEFAULT_TIMEOUT);
     }
-
     // Checks if login is successful, returns true if yes
     function checkLoginStatus() {
-        if (getElementByXpath(elements.profileIcon) != null || getElementByXpath(elements.profileIcon) != undefined) {
+        if (getElementByXpath(elements.profileIcon) != null || getElementByXpath(elements.profileIcon) !=
+            undefined) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     };
     // Check if trial is expired, returns true if yes
     function checkIfTrialIsExpired() {
-        if (getElementByXpath(elements.trial_end) != null || getElementByXpath(elements.trial_end) != undefined) {
+        if (getElementByXpath(elements.trial_end) != null || getElementByXpath(elements.trial_end) !=
+            undefined) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -234,27 +237,28 @@
     // Generates a random name for the email, returns a string
     function getRandomEmail() {
         const randomDomain = DOMAINS[Math.floor(Math.random() * DOMAINS.length)];
-        const randomString = Math.random().toString(36).substring(2, 8);
+        const randomString = Math.random()
+            .toString(36)
+            .substring(2, 8);
         return `${randomString}@${randomDomain}`;
     }
     // Generates a random password, returns a string
     function getRandomPassword() {
-        return Array.from({ length: 10 }, () => CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)]).join('');
+        return Array.from({
+            length: 10
+        }, () => CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)])
+            .join('');
     }
     // Gets an element from the XPath, returns the element
     function getElementByXpath(xPathToElement) {
         return document.evaluate(
-            xPathToElement,
-            document,
-            null,
-            XPathResult.FIRST_ORDERED_NODE_TYPE,
-            null
-        ).singleNodeValue;
+            xPathToElement, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
+        )
+            .singleNodeValue;
     }
     // Execute function after element is found
     function executeAfterFoundInXpath(xpath, callback) {
         const element = getElementByXpath(xpath);
-
         if (element) {
             callback();
         } else {
@@ -271,4 +275,3 @@
         });
     }
 })();
-
