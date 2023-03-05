@@ -39,8 +39,8 @@
         registerInputPassword: "//input[@id='password']",
         createAccountButton: "//button[contains(text(), 'Create Account')]",
         selectPlaylistPopUp: "//img[@alt='Lady working in focus mode']",
-        trialEndLabel: "//div[contains(text(), 'Your trial has ended.')]",
-        //trial_end: "//div[contains(text(), 'Your trial ends in 3 days')]",
+        // trialEndLabel: "//div[contains(text(), 'Your trial has ended.')]",
+        trialEndLabel: "//div[contains(text(), 'Your trial ends in 2 days')]",
         subscribeButton: "//button[contains(text(), 'Subscribe')]",
         closeButtonInActivitySelectPopUp: "//img[@data-testid='closeButton']",
         quizSkipButtonSecond: "//div[@data-testid='onboardingCardCloseButton']",
@@ -95,10 +95,10 @@
         await console.log("Filling complete");
         skipSplashScreen();
         await console.log("Register complete");
-        await executeAfterFoundInXpath(SELECTORS.selectPlaylistPopUp, choosePlaylist);
-        await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT * 2 * 12));
-        autoConfig();
         clickOnElement(SELECTORS.splashScreenSkip);
+        await executeAfterFoundInXpath(SELECTORS.selectPlaylistPopUp, choosePlaylist);
+        await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT * 2 * 16));
+        autoConfig();
     }
     // logs out user
     async function logout() {
@@ -168,7 +168,7 @@
     // skip all splash screen elements by just clicking them automatically
     async function skipSplashScreen() {
         for (let i = 0; i < 3; i++) {
-            clickOnElement(SELECTORS.nextButtonIn);
+            clickOnElement(SELECTORS.nextButtonInSplashScreen);
         }
         clickOnElement(SELECTORS.quizSkipButton);
     }
@@ -204,7 +204,7 @@
         }, DEFAULT_TIMEOUT);
     }
     // Checks if login is successful, returns true if yes
-    function checkLoginStatus() {
+    async function checkLoginStatus() {
         if (getElementByXpath(SELECTORS.profileHeadIcon) != null || getElementByXpath(SELECTORS.profileHeadIcon) !=
             undefined) {
             return true;
@@ -213,7 +213,7 @@
         }
     };
     // Check if trial is expired, returns true if yes
-    function checkIfTrialIsExpired() {
+    async function checkIfTrialIsExpired() {
         if (getElementByXpath(SELECTORS.trialEndLabel) != null || getElementByXpath(SELECTORS.trialEndLabel) !=
             undefined) {
             return true;
