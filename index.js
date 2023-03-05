@@ -11,13 +11,14 @@
 // ==/UserScript==
 (function () {
     // CONFIG 
-    // choose default playlist (relax, focus, sleep)
-    const playlist = "focus";
-    // choose activity (work, learning, creativity)
-    const activity = "learning";
+    // !choose default playlist (relax, focus, sleep)
+    const PLAYLIST = "focus";
+    // !choose activity (work, learning, creativity)
+    const ACTIVITY_TYPE = "learning";
+    // !choose neural level (low, medium, high)
     // TODO dodac aktywnosci dla innych playlist 
-    // choose neural level (low, medium, high)
-    const effect = "medium";
+    const EFFECT_LEVEL = "medium";
+
     const NAMES = ["Adam", "Ewa", "Michał", "Katarzyna", "Paweł", "Anna", "Tomasz", "Magdalena",
         "Krzysztof", "Monika", "Korbin", "Clovis"
     ];
@@ -28,7 +29,7 @@
         'armyspy.net', 'rhyta.net', 'dayrep.net'
     ];
     const DEFAULT_TIMEOUT = 500;
-    const elements = {
+    const selectors = {
         profileIcon: "//div[@data-testid='profile-button']",
         signUpButton: "//a[@data-testid='sign-up']",
         activity: "//span[contains(text(), 'Activity')]",
@@ -47,13 +48,13 @@
         input_name: "//input[@id='name']",
         input_email: "//input[@id='email']",
         input_password: "//input[@id='password']",
-        submit_button: "//button[contains(text(), 'Create Account')]",
+        createAccountButton: "//button[contains(text(), 'Create Account')]",
         playlist_select: "//img[@alt='Lady working in focus mode']",
         trial_end: "//div[contains(text(), 'Your trial has ended.')]",
         //trial_end: "//div[contains(text(), 'Your trial ends in 3 days')]",
         subscribe: "//button[contains(text(), 'Subscribe')]",
         close_button: "//img[@data-testid='closeButton']",
-        quiz2: "//div[@data-testid='onboardingCardCloseButton]'",
+        quiz2: "//div[@data-testid='onboardingCardCloseButton']",
         skip: "//button[@data-testid='skipButton']",
     }
     'use strict';
@@ -69,15 +70,15 @@
     async function main() {
         let isLogged = await checkLoginStatus();
         await console.log("Is user logged: " + isLogged);
-        if (isLogged == true) {
+        if (isLogged === true) {
             let trialExpired = await checkIfTrialIsExpired();
             await console.log("Is trial expired: " + trialExpired);
-            if (trialExpired == true) {
+            if (trialExpired === true) {
                 await console.log("Logging out");
                 await logout();
                 await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT * 2));
                 await register();
-            } else if (trialExpired == false) {
+            } else if (trialExpired === false) {
                 await console.log("Your trial is active");
                 return;
             } else {
@@ -85,35 +86,36 @@
                 await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT * 2 * 60));
                 await main();
             }
-        } else if (isLogged == false) {
-            if (getElementByXpath(elements.input_email) != null || getElementByXpath(elements
+        } else if (isLogged === false) {
+            if (getElementByXpath(selectors.input_email) != null || getElementByXpath(selectors
                 .input_email) !=
                 undefined) {
                 await register();
             } else {
-                setTimeout(main, DEFAULT_TIMEOUT * 2);
+                await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT * 2));
+                main();
             }
         } else {
             await console.log("can't check login status, exiting");
         }
     }
     async function register() {
-        clickOnElement(elements.signUpButton);
+        clickOnElement(selectors.signUpButton);
         await console.log("Registering new account");
         fillFormAndRegister()
         await console.log("Filling complete");
         skipSplashScreen();
         await console.log("Register complete");
-        await executeAfterFoundInXpath(elements.playlist_select, choosePlaylist);
+        await executeAfterFoundInXpath(selectors.playlist_select, choosePlaylist);
         await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT * 2 * 12));
         autoConfig();
-        clickOnElement(elements.skip);
+        clickOnElement(selectors.skip);
     }
     // logs out user
     async function logout() {
         overrideConfirmFunction();
-        clickOnElement(elements.profileIcon);
-        clickOnElement(elements.logoutButton);
+        clickOnElement(selectors.profileIcon);
+        clickOnElement(selectors.logoutButton);
     }
     // Automatically click ok on the confirm popup
     async function overrideConfirmFunction() {
@@ -125,68 +127,68 @@
         }
     }
     async function autoConfig() {
-        await console.log("Activity selected: " + activity);
-        await clickOnElement(elements.activity);
-        switch (activity) {
+        await console.log("Activity selected: " + ACTIVITY_TYPE);
+        await clickOnElement(selectors.activity);
+        switch (ACTIVITY_TYPE) {
             case "learning":
-                clickOnElement(elements.learning_music);
+                clickOnElement(selectors.learning_music);
                 break;
             case "work":
-                clickOnElement(elements.work_music);
+                clickOnElement(selectors.work_music);
                 break;
             case "creativity":
-                clickOnElement(elements.creativity_music);
+                clickOnElement(selectors.creativity_music);
                 break;
             default:
                 break;
         }
-        await console.log("Effect selected: " + effect);
-        switch (effect) {
+        await console.log("Effect selected: " + EFFECT_LEVEL);
+        switch (EFFECT_LEVEL) {
             case "low":
-                clickOnElement(elements.low_effect);
+                clickOnElement(selectors.low_effect);
                 break;
             case "medium":
-                clickOnElement(elements.medium_effect);
+                clickOnElement(selectors.medium_effect);
                 break;
             case "strong":
-                clickOnElement(elements.strong_effect);
+                clickOnElement(selectors.strong_effect);
                 break;
             default:
                 break;
         }
-        clickOnElement(elements.close_button);
+        clickOnElement(selectors.close_button);
         await console.log("Auto config complete");
     }
     async function choosePlaylist() {
-        await console.log("Playlist selected: " + playlist);
-        switch (playlist) {
+        await console.log("Playlist selected: " + PLAYLIST);
+        switch (PLAYLIST) {
             case "relax":
-                clickOnElement(elements.relax_playlist);
+                clickOnElement(selectors.relax_playlist);
                 break;
             case "focus":
-                clickOnElement(elements.focus_playlist);
+                clickOnElement(selectors.focus_playlist);
                 break;
             case "sleep":
-                clickOnElement(elements.sleep_playlist);
+                clickOnElement(selectors.sleep_playlist);
                 break;
             default:
-                clickOnElement(elements.focus_playlist);
+                clickOnElement(selectors.focus_playlist);
                 break;
         }
     }
     // skip all splash screen elements by just clicking them automatically
     async function skipSplashScreen() {
         for (let i = 0; i < 3; i++) {
-            clickOnElement(elements.next_button);
+            clickOnElement(selectors.next_button);
         }
-        clickOnElement(elements.quiz);
+        clickOnElement(selectors.quiz);
     }
     // fill register form with random data and click submit button
     async function fillFormAndRegister() {
-        var intervalId = setInterval(function () {
-            var nameInput = getElementByXpath(elements.input_name);
-            var emailInput = getElementByXpath(elements.input_email);
-            var passwordInput = getElementByXpath(elements.input_password);
+        let intervalId = setInterval(function () {
+            let nameInput = getElementByXpath(selectors.input_name);
+            let emailInput = getElementByXpath(selectors.input_email);
+            let passwordInput = getElementByXpath(selectors.input_password);
             if (nameInput && emailInput && passwordInput) {
                 clearInterval(intervalId);
                 Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")
@@ -207,14 +209,14 @@
                 passwordInput.dispatchEvent(new Event('input', {
                     bubbles: true
                 }));
-                var submitButton = getElementByXpath("//button[@type='submit']");
+                let submitButton = getElementByXpath("//button[@type='submit']");
                 submitButton.click();
             }
         }, DEFAULT_TIMEOUT);
     }
     // Checks if login is successful, returns true if yes
     function checkLoginStatus() {
-        if (getElementByXpath(elements.profileIcon) != null || getElementByXpath(elements.profileIcon) !=
+        if (getElementByXpath(selectors.profileIcon) != null || getElementByXpath(selectors.profileIcon) !=
             undefined) {
             return true;
         } else {
@@ -223,7 +225,7 @@
     };
     // Check if trial is expired, returns true if yes
     function checkIfTrialIsExpired() {
-        if (getElementByXpath(elements.trial_end) != null || getElementByXpath(elements.trial_end) !=
+        if (getElementByXpath(selectors.trial_end) != null || getElementByXpath(selectors.trial_end) !=
             undefined) {
             return true;
         } else {
