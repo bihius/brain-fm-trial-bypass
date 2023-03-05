@@ -1,72 +1,61 @@
 // ==UserScript==
-// @name         Bypass trial on brain.fm
-// @namespace    http://tampermonkey.net/
-// @version      1.01
-// @description  Autoregister on brain.fm when trial is ending
-// @author       https://github.com/b3valsek
-// @match        https://my.brain.fm/*
-// @grant        unsafeWindow
-// @updateURL    https://raw.githubusercontent.com/b3valsek/brain-fm-trial-bypass/main/index.js?token=GHSAT0AAAAAAB6ASQXLKSW5GXBPTUIJ5TFOZADWBRQ
-// @downloadURL  https://raw.githubusercontent.com/b3valsek/brain-fm-trial-bypass/main/index.js?token=GHSAT0AAAAAAB6ASQXLKSW5GXBPTUIJ5TFOZADWBRQ
+// @name Brain.fm trial bypass
+// @namespace http://tampermonkey.net/
+// @version 1.02
+// @description Auto register on Brain.fm when trial is ending
+// @author https://github.com/b3valsek
+// @match https://my.brain.fm/*
+// @grant unsafeWindow
 // ==/UserScript==
+
 (function () {
-    // CONFIG 
-    // !choose default playlist (relax, focus, sleep)
-    const PLAYLIST = "focus";
-    // !choose activity (work, learning, creativity)
-    const ACTIVITY_TYPE = "learning";
-    // !choose neural level (low, medium, high)
-    // TODO dodac aktywnosci dla innych playlist 
-    const EFFECT_LEVEL = "medium";
-
-    const NAMES = ["Adam", "Ewa", "Michał", "Katarzyna", "Paweł", "Anna", "Tomasz", "Magdalena",
-        "Krzysztof", "Monika", "Korbin", "Clovis"
-    ];
-    const CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
-    const DOMAINS = [
-        'armyspy.com', 'rhyta.com', 'dayrep.com', 'teleworm.us', 'superrito.com', 'einrot.com',
-        'cuvox.de', 'gustr.com', 'fleckens.hu', 'glockenhofer.com', 'jourrapide.com', 'speedpost.net',
-        'armyspy.net', 'rhyta.net', 'dayrep.net'
-    ];
-    const DEFAULT_TIMEOUT = 500;
-    const selectors = {
-        profileIcon: "//div[@data-testid='profile-button']",
-        signUpButton: "//a[@data-testid='sign-up']",
-        activity: "//span[contains(text(), 'Activity')]",
-        logoutButton: "//a[@data-testid='logout']",
-        learning_music: "//div//child::p[contains(text(),'Use this music')]",
-        work_music: "//div//child::p[contains(text(),'Music designed to facilitate cognitively')]",
-        creativity_music: "//div//child::p[contains(text(),'Music designed to engage and inspire. ')]",
-        low_effect: "//div//h6[contains(text(), 'low')]",
-        medium_effect: "//div//h6[contains(text(), 'medium')]",
-        strong_effect: "//div//h6[contains(text(), 'high')]",
-        focus_playlist: "//p[contains(text(), Focus)]",
-        relax_playlist: "//p[contains(text(), Relax)]",
-        sleep_playlist: "//p[contains(text(), Sleep)]",
-        next_button: "//button[contains(text(), 'Next')]",
-        quiz: "//button[contains(text(), 'Take this quiz later')]",
-        input_name: "//input[@id='name']",
-        input_email: "//input[@id='email']",
-        input_password: "//input[@id='password']",
-        createAccountButton: "//button[contains(text(), 'Create Account')]",
-        playlist_select: "//img[@alt='Lady working in focus mode']",
-        trial_end: "//div[contains(text(), 'Your trial has ended.')]",
-        //trial_end: "//div[contains(text(), 'Your trial ends in 3 days')]",
-        subscribe: "//button[contains(text(), 'Subscribe')]",
-        close_button: "//img[@data-testid='closeButton']",
-        quiz2: "//div[@data-testid='onboardingCardCloseButton']",
-        skip: "//button[@data-testid='skipButton']",
-    }
     'use strict';
+    // CONFIG
+    const PLAYLIST = "focus"; // choose default playlist (relax, focus, sleep)
+    const ACTIVITY_TYPE = "learning"; // choose activity (work, learning, creativity)
+    const EFFECT_LEVEL = "medium"; // choose neural level (low, medium, high)
+    const NAMES = ["Adam", "Ewa", "Michał", "Katarzyna", "Paweł", "Anna", "Tomasz", "Magdalena", "Krzysztof", "Monika", "Korbin", "Clovis"];
+    const CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
+    const DOMAINS = ['armyspy.com', 'rhyta.com', 'dayrep.com', 'teleworm.us', 'superrito.com', 'einrot.com', 'cuvox.de', 'gustr.com', 'fleckens.hu', 'glockenhofer.com', 'jourrapide.com', 'speedpost.net', 'armyspy.net', 'rhyta.net', 'dayrep.net'];
+    const DEFAULT_TIMEOUT = 500; // in ms
+    const SELECTORS = {
+        profileHeadIcon: "//div[@data-testid='profile-button']",
+        signUpButton: "//a[@data-testid='sign-up']",
+        changeActivityButton: "//span[contains(text(), 'Activity')]",
+        logoutButton: "//a[@data-testid='logout']",
+        activityLearning: "//div//child::p[contains(text(),'Use this music')]",
+        activityWork: "//div//child::p[contains(text(),'Music designed to facilitate cognitively')]",
+        activityCreativity: "//div//child::p[contains(text(),'Music designed to engage and inspire. ')]",
+        effectLow: "//div//h6[contains(text(), 'low')]",
+        effectMedium: "//div//h6[contains(text(), 'medium')]",
+        effectMedium: "//div//h6[contains(text(), 'high')]",
+        playlistFocus: "//p[contains(text(), Focus)]",
+        playlistRelax: "//p[contains(text(), Relax)]",
+        playlistSleep: "//p[contains(text(), Sleep)]",
+        nextButtonInSplashScreen: "//button[contains(text(), 'Next')]",
+        quizSkipButton: "//button[contains(text(), 'Take this quiz later')]",
+        registerInputName: "//input[@id='name']",
+        registerInputEmail: "//input[@id='email']",
+        registerInputPassword: "//input[@id='password']",
+        createAccountButton: "//button[contains(text(), 'Create Account')]",
+        selectPlaylistPopUp: "//img[@alt='Lady working in focus mode']",
+        trialEndLabel: "//div[contains(text(), 'Your trial has ended.')]",
+        //trial_end: "//div[contains(text(), 'Your trial ends in 3 days')]",
+        subscribeButton: "//button[contains(text(), 'Subscribe')]",
+        closeButtonInActivitySelectPopUp: "//img[@data-testid='closeButton']",
+        quizSkipButtonSecond: "//div[@data-testid='onboardingCardCloseButton']",
+        splashScreenSkip: "//button[@data-testid='skipButton']",
+    }
 
-    document.addEventListener("DOMContentLoaded", async function () {
+    window.onload = async function () {
         await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT * 15));
         window.confirm = function () {
             return true;
         };
         await console.log("Bypassing trial on brain.fm");
         await main();
-    });
+    };
+
     async function main() {
         let isLogged = await checkLoginStatus();
         await console.log("Is user logged: " + isLogged);
@@ -87,8 +76,8 @@
                 await main();
             }
         } else if (isLogged === false) {
-            if (getElementByXpath(selectors.input_email) != null || getElementByXpath(selectors
-                .input_email) !=
+            if (getElementByXpath(SELECTORS.registerInputEmail) != null || getElementByXpath(SELECTORS
+                .registerInputEmail) !=
                 undefined) {
                 await register();
             } else {
@@ -100,22 +89,22 @@
         }
     }
     async function register() {
-        clickOnElement(selectors.signUpButton);
+        clickOnElement(SELECTORS.signUpButton);
         await console.log("Registering new account");
         fillFormAndRegister()
         await console.log("Filling complete");
         skipSplashScreen();
         await console.log("Register complete");
-        await executeAfterFoundInXpath(selectors.playlist_select, choosePlaylist);
+        await executeAfterFoundInXpath(SELECTORS.selectPlaylistPopUp, choosePlaylist);
         await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT * 2 * 12));
         autoConfig();
-        clickOnElement(selectors.skip);
+        clickOnElement(SELECTORS.splashScreenSkip);
     }
     // logs out user
     async function logout() {
         overrideConfirmFunction();
-        clickOnElement(selectors.profileIcon);
-        clickOnElement(selectors.logoutButton);
+        clickOnElement(SELECTORS.profileHeadIcon);
+        clickOnElement(SELECTORS.logoutButton);
     }
     // Automatically click ok on the confirm popup
     async function overrideConfirmFunction() {
@@ -128,16 +117,16 @@
     }
     async function autoConfig() {
         await console.log("Activity selected: " + ACTIVITY_TYPE);
-        await clickOnElement(selectors.activity);
+        await clickOnElement(SELECTORS.changeActivityButton);
         switch (ACTIVITY_TYPE) {
             case "learning":
-                clickOnElement(selectors.learning_music);
+                clickOnElement(SELECTORS.activityLearning);
                 break;
             case "work":
-                clickOnElement(selectors.work_music);
+                clickOnElement(SELECTORS.activityWork);
                 break;
             case "creativity":
-                clickOnElement(selectors.creativity_music);
+                clickOnElement(SELECTORS.activityCreativity);
                 break;
             default:
                 break;
@@ -145,50 +134,50 @@
         await console.log("Effect selected: " + EFFECT_LEVEL);
         switch (EFFECT_LEVEL) {
             case "low":
-                clickOnElement(selectors.low_effect);
+                clickOnElement(SELECTORS.effectLow);
                 break;
             case "medium":
-                clickOnElement(selectors.medium_effect);
+                clickOnElement(SELECTORS.effectMedium);
                 break;
             case "strong":
-                clickOnElement(selectors.strong_effect);
+                clickOnElement(SELECTORS.effectMedium);
                 break;
             default:
                 break;
         }
-        clickOnElement(selectors.close_button);
+        clickOnElement(SELECTORS.closeButtonInActivitySelectPopUp);
         await console.log("Auto config complete");
     }
     async function choosePlaylist() {
         await console.log("Playlist selected: " + PLAYLIST);
         switch (PLAYLIST) {
             case "relax":
-                clickOnElement(selectors.relax_playlist);
+                clickOnElement(SELECTORS.playlistRelax);
                 break;
             case "focus":
-                clickOnElement(selectors.focus_playlist);
+                clickOnElement(SELECTORS.playlistFocus);
                 break;
             case "sleep":
-                clickOnElement(selectors.sleep_playlist);
+                clickOnElement(SELECTORS.playlistSleep);
                 break;
             default:
-                clickOnElement(selectors.focus_playlist);
+                clickOnElement(SELECTORS.playlistFocus);
                 break;
         }
     }
     // skip all splash screen elements by just clicking them automatically
     async function skipSplashScreen() {
         for (let i = 0; i < 3; i++) {
-            clickOnElement(selectors.next_button);
+            clickOnElement(SELECTORS.nextButtonIn);
         }
-        clickOnElement(selectors.quiz);
+        clickOnElement(SELECTORS.quizSkipButton);
     }
     // fill register form with random data and click submit button
     async function fillFormAndRegister() {
         let intervalId = setInterval(function () {
-            let nameInput = getElementByXpath(selectors.input_name);
-            let emailInput = getElementByXpath(selectors.input_email);
-            let passwordInput = getElementByXpath(selectors.input_password);
+            let nameInput = getElementByXpath(SELECTORS.registerInputName);
+            let emailInput = getElementByXpath(SELECTORS.registerInputEmail);
+            let passwordInput = getElementByXpath(SELECTORS.registerInputPassword);
             if (nameInput && emailInput && passwordInput) {
                 clearInterval(intervalId);
                 Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")
@@ -216,7 +205,7 @@
     }
     // Checks if login is successful, returns true if yes
     function checkLoginStatus() {
-        if (getElementByXpath(selectors.profileIcon) != null || getElementByXpath(selectors.profileIcon) !=
+        if (getElementByXpath(SELECTORS.profileHeadIcon) != null || getElementByXpath(SELECTORS.profileHeadIcon) !=
             undefined) {
             return true;
         } else {
@@ -225,7 +214,7 @@
     };
     // Check if trial is expired, returns true if yes
     function checkIfTrialIsExpired() {
-        if (getElementByXpath(selectors.trial_end) != null || getElementByXpath(selectors.trial_end) !=
+        if (getElementByXpath(SELECTORS.trialEndLabel) != null || getElementByXpath(SELECTORS.trialEndLabel) !=
             undefined) {
             return true;
         } else {
