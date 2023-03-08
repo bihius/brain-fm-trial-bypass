@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Brain.fm trial bypass
 // @namespace http://tampermonkey.net/
-// @version 1.03
+// @version 1.04
 // @description Auto register on Brain.fm when trial is ending
 // @author https://github.com/b3valsek
 // @match https://my.brain.fm/*
@@ -39,7 +39,7 @@
         registerInputPassword: "//input[@id='password']",
         createAccountButton: "//button[contains(text(), 'Create Account')]",
         selectPlaylistPopUp: "//img[@alt='Lady working in focus mode']",
-        trialEndLabel: "//div[contains(text(), 'Your trial has ended.')]",
+        trialEndLabel: "//div[contains(text(), 'Your trial has ended')]",
         //trialEndLabel: "//div[contains(text(), 'Your trial ends in 2 days')]",
         subscribeButton: "//button[contains(text(), 'Subscribe')]",
         closeButtonInActivitySelectPopUp: "//img[@data-testid='closeButton']",
