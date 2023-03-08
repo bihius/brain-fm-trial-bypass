@@ -117,6 +117,7 @@
     }
     async function autoConfig() {
         await console.log("Activity selected: " + ACTIVITY_TYPE);
+        await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT));
         await clickOnElement(SELECTORS.changeActivityButton);
         switch (ACTIVITY_TYPE) {
             case "learning":
