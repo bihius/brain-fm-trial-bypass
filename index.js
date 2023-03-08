@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Brain.fm trial bypass
 // @namespace http://tampermonkey.net/
-// @version 1.04
+// @version 1.05
 // @description Auto register on Brain.fm when trial is ending
 // @author https://github.com/b3valsek
 // @match https://my.brain.fm/*
@@ -120,48 +120,49 @@
         await clickOnElement(SELECTORS.changeActivityButton);
         switch (ACTIVITY_TYPE) {
             case "learning":
-                clickOnElement(SELECTORS.activityLearning);
+                await clickOnElement(SELECTORS.activityLearning);
                 break;
             case "work":
-                clickOnElement(SELECTORS.activityWork);
+                await clickOnElement(SELECTORS.activityWork);
                 break;
             case "creativity":
-                clickOnElement(SELECTORS.activityCreativity);
+                await clickOnElement(SELECTORS.activityCreativity);
                 break;
             default:
                 break;
         }
+        await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT));
         await console.log("Effect selected: " + EFFECT_LEVEL);
         switch (EFFECT_LEVEL) {
             case "low":
-                clickOnElement(SELECTORS.effectLow);
+                await clickOnElement(SELECTORS.effectLow);
                 break;
             case "medium":
-                clickOnElement(SELECTORS.effectMedium);
+                await clickOnElement(SELECTORS.effectMedium);
                 break;
             case "strong":
-                clickOnElement(SELECTORS.effectMedium);
+                await clickOnElement(SELECTORS.effectMedium);
                 break;
             default:
                 break;
         }
-        clickOnElement(SELECTORS.closeButtonInActivitySelectPopUp);
+        await clickOnElement(SELECTORS.closeButtonInActivitySelectPopUp);
         await console.log("Auto config complete");
     }
     async function choosePlaylist() {
         await console.log("Playlist selected: " + PLAYLIST);
         switch (PLAYLIST) {
             case "relax":
-                clickOnElement(SELECTORS.playlistRelax);
+                await clickOnElement(SELECTORS.playlistRelax);
                 break;
             case "focus":
-                clickOnElement(SELECTORS.playlistFocus);
+                await clickOnElement(SELECTORS.playlistFocus);
                 break;
             case "sleep":
-                clickOnElement(SELECTORS.playlistSleep);
+                await clickOnElement(SELECTORS.playlistSleep);
                 break;
             default:
-                clickOnElement(SELECTORS.playlistFocus);
+                await clickOnElement(SELECTORS.playlistFocus);
                 break;
         }
     }
