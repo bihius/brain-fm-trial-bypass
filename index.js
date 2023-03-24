@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Brain.fm trial bypass
 // @namespace http://tampermonkey.net/
-// @version 1.05
+// @version 1.06
 // @description Auto register on Brain.fm when trial is ending
 // @author https://github.com/b3valsek
 // @match https://my.brain.fm/*
@@ -13,7 +13,7 @@
     // CONFIG
     const PLAYLIST = "focus"; // choose default playlist (relax, focus, sleep)
     const ACTIVITY_TYPE = "learning"; // choose activity (work, learning, creativity)
-    const EFFECT_LEVEL = "medium"; // choose neural level (low, medium, high)
+    const EFFECT_LEVEL = ["medium", "high"]; // choose neural level (low, medium, high)
     const NAMES = ["Adam", "Ewa", "Michał", "Katarzyna", "Paweł", "Anna", "Tomasz", "Magdalena", "Krzysztof", "Monika", "Korbin", "Clovis"];
     const CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
     const DOMAINS = ['armyspy.com', 'rhyta.com', 'dayrep.com', 'teleworm.us', 'superrito.com', 'einrot.com', 'cuvox.de', 'gustr.com', 'fleckens.hu', 'glockenhofer.com', 'jourrapide.com', 'speedpost.net', 'armyspy.net', 'rhyta.net', 'dayrep.net'];
@@ -28,7 +28,7 @@
         activityCreativity: "//div//child::p[contains(text(),'Music designed to engage and inspire. ')]",
         effectLow: "//div//h6[contains(text(), 'low')]",
         effectMedium: "//div//h6[contains(text(), 'medium')]",
-        effectMedium: "//div//h6[contains(text(), 'high')]",
+        effectHigh: "//div//h6[contains(text(), 'high')]",
         playlistFocus: "//p[contains(text(), Focus)]",
         playlistRelax: "//p[contains(text(), Relax)]",
         playlistSleep: "//p[contains(text(), Sleep)]",
@@ -69,7 +69,6 @@
                 await register();
             } else if (trialExpired === false) {
                 await console.log("Your trial is active");
-                return;
             } else {
                 await console.log("Can't check trial status, trying one more time in 60 seconds...");
                 await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT * 2 * 60));
@@ -134,21 +133,23 @@
         }
         await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT));
         await console.log("Effect selected: " + EFFECT_LEVEL);
-        switch (EFFECT_LEVEL) {
-            case "low":
-                await clickOnElement(SELECTORS.effectLow);
-                break;
-            case "medium":
-                await clickOnElement(SELECTORS.effectMedium);
-                break;
-            case "strong":
-                await clickOnElement(SELECTORS.effectMedium);
-                break;
-            default:
-                break;
+        for (var x = 0; x < EFFECT_LEVEL.length; x++) {
+            switch (EFFECT_LEVEL[x]) {
+                case "low":
+                    await clickOnElement(SELECTORS.effectLow);
+                    break;
+                case "medium":
+                    await clickOnElement(SELECTORS.effectMedium);
+                    break;
+                case "high":
+                    await clickOnElement(SELECTORS.effectHigh);
+                    break;
+                default:
+                    break;
+            }
         }
         await clickOnElement(SELECTORS.closeButtonInActivitySelectPopUp);
-        await console.log("Auto config complete");
+        await console.log("Auto config complete"); m
     }
     async function choosePlaylist() {
         await console.log("Playlist selected: " + PLAYLIST);
@@ -258,7 +259,7 @@
             setTimeout(() => executeAfterFoundInXpath(xpath, callback), DEFAULT_TIMEOUT * 2);
         }
     }
-    // Clicks on a element 
+    // Clicks on an element 
     function clickOnElement(path) {
         executeAfterFoundInXpath(path, function () {
             const element = getElementByXpath(path);
