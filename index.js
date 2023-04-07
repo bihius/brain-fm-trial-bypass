@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Brain.fm trial bypass
 // @namespace http://tampermonkey.net/
-// @version 1.06
+// @version 1.07
 // @description Auto register on Brain.fm when trial is ending
 // @author https://github.com/b3valsek
 // @match https://my.brain.fm/*
@@ -116,7 +116,7 @@
     }
     async function autoConfig() {
         await console.log("Activity selected: " + ACTIVITY_TYPE);
-        await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT));
+        await new Promise(resolve => setTimeout(resolve, 4 * DEFAULT_TIMEOUT));
         await clickOnElement(SELECTORS.changeActivityButton);
         switch (ACTIVITY_TYPE) {
             case "learning":
@@ -131,7 +131,7 @@
             default:
                 break;
         }
-        await new Promise(resolve => setTimeout(resolve, DEFAULT_TIMEOUT));
+        await new Promise(resolve => setTimeout(resolve, 4 * DEFAULT_TIMEOUT));
         await console.log("Effect selected: " + EFFECT_LEVEL);
         for (var x = 0; x < EFFECT_LEVEL.length; x++) {
             switch (EFFECT_LEVEL[x]) {
@@ -148,6 +148,7 @@
                     break;
             }
         }
+        await new Promise(resolve => setTimeout(resolve, 4 * DEFAULT_TIMEOUT));
         await clickOnElement(SELECTORS.closeButtonInActivitySelectPopUp);
         await console.log("Auto config complete"); m
     }
